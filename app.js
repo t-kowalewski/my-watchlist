@@ -1,7 +1,7 @@
 // Movie Constructor
-function Movie(title, director, imdb) {
+function Movie(title, year, imdb) {
   this.title = title;
-  this.director = director;
+  this.year = year;
   this.imdb = imdb;
 }
 
@@ -17,11 +17,11 @@ UI.prototype.addMovieToList = function (movie) {
 
   // Insert cols - <td>
   row.innerHTML = `
-  <td>${movie.title}</td>
-  <td>${movie.director}</td>
-  <td>${movie.imdb}</td>
-  <td><i class="delete fas fa-times"></i></td>
-  `;
+    <td>${movie.title}</td>
+    <td>${movie.year}</td>
+    <td><a href='${movie.imdb}'>${movie.imdb}</a></td>
+    <td><i class="delete fas fa-times"></i></td>
+    `;
 
   // Append to the List
   list.appendChild(row);
@@ -47,29 +47,39 @@ UI.prototype.showAlert = function (msg, alertClass) {
   }, 4000);
 }
 
+// Prototype - Delete Movie
+UI.prototype.deleteMovie = function (target, alertCallback) {
+  if (target.classList.contains('delete')) {
+    target.parentElement.parentElement.remove();
+    alertCallback();
+  }
+}
+
 // Prototype - Clear Input
 UI.prototype.clearInput = function () {
   document.querySelector('#title').value = '';
-  document.querySelector('#director').value = '';
+  document.querySelector('#year').value = '';
   document.querySelector('#imdb').value = '';
 }
 
-// Event Listeners ===============================
+// ================= Event Listeners =========================
+
+// Event Listener for Add / Submit
 document.querySelector('#movie-form').addEventListener('submit', function (e) {
 
   // Get form values
   const title = document.querySelector('#title').value,
-    director = document.querySelector('#director').value,
-    imdb = document.querySelector('#imdb').value;
+        year = document.querySelector('#year').value,
+        imdb = document.querySelector('#imdb').value;
 
   // Instantiate Movie
-  const movie = new Movie(title, director, imdb);
+  const movie = new Movie(title, year, imdb);
 
   // Instantiate UI
   const ui = new UI();
 
   // Validate input
-  if (title === '' || director === '' || imdb === '') {
+  if (title === '' || year === '' || imdb === '') {
     // Error Alert
     ui.showAlert('Please fill in all fields', 'error');
   }
@@ -85,4 +95,17 @@ document.querySelector('#movie-form').addEventListener('submit', function (e) {
   }
 
   e.preventDefault();
+});
+
+// Event Listener for Delete
+document.querySelector('#movie-list').addEventListener('click', function (e) {
+  // Instantiate UI
+  const ui = new UI();
+
+  // Delete Movie
+  ui.deleteMovie(e.target, function () {
+
+    // Show Alert - Callback function
+    ui.showAlert('Movie Removed', 'success');
+  });
 });
