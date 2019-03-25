@@ -60,7 +60,60 @@ class UI {
   }
 }
 
+// Local Storage Class
+class Storage {
+  // Get Movies from LS
+  static getMovies_LS() {
+    let movies;
+    if (localStorage.getItem('movies') === null) {
+      movies = [];
+    }
+    else {
+      movies = JSON.parse(localStorage.getItem('movies'));
+    }
+
+    return movies;
+  }
+
+  // Display Movie from LS (page load)
+  static displayMovies_LS() {
+    const movies = Storage.getMovies_LS();
+
+    movies.forEach(function(movie) {
+      // Instantiate UI class
+      const ui = new UI();
+
+      ui.addMovieToList(movie);
+    });
+  }
+
+  // Add Movie to LS
+  static addMovie_LS(movie) {
+    const movies = Storage.getMovies_LS();
+
+    movies.push(movie);
+
+    localStorage.setItem('movies', JSON.stringify(movies));
+  }
+
+  // Delete Movie - LS
+  static deleteMovie_LS(movie) {
+    const movies = Storage.getMovies_LS();
+
+    movies.forEach(function(movie_LS, index) {
+      if (movie_LS.imdb === movie.children[2].textContent) {
+        movies.splice(index, 1);
+      }
+    });
+
+    localStorage.setItem('movies', JSON.stringify(movies));
+  }
+}
+
 // ============ Event Listeners ==============
+
+// Event Listener for Page Load (load movies from LS)
+document.addEventListener('DOMContentLoaded', Storage.displayMovies_LS);
 
 // Event Listener for Add / Submit
 document.querySelector('#movie-form').addEventListener('submit', function (e) {
@@ -85,6 +138,9 @@ document.querySelector('#movie-form').addEventListener('submit', function (e) {
     // UI - Add Movie to List
     ui.addMovieToList(movie);
 
+    // Add to LS  (we're not instantiating it -> it's static)
+    Storage.addMovie_LS(movie);
+
     // Show Alert
     ui.showAlert('Movie successfully added!', 'success');
 
@@ -105,5 +161,8 @@ document.querySelector('#movie-list').addEventListener('click', function (e) {
 
     // Show Alert - Callback function
     ui.showAlert('Movie Removed', 'success');
+
+    // Delete Movie - LS
+    Storage.deleteMovie_LS(e.target.parentElement.parentElement);
   });
 });
